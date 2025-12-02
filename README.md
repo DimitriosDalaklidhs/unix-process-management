@@ -44,8 +44,11 @@ Each child:
   - Child PID  
   - A static email string  
 - Closes the write end and exits.
-
-
+- Closes the unused **write end**.
+- Continuously reads all incoming messages from the pipe.
+- Stops when all children close their write ends and `read()` returns `0`.
+- Waits for all children using `wait()` to prevent zombie processes.
+- 
 
 Author
 
@@ -54,9 +57,4 @@ Dimitrios Dalaklidis is an aspiring backend developer with a strong academic fou
 His technical interests center on backend system design, algorithmic efficiency, and the construction of reliable, maintainable software. He actively pursues opportunities to expand his expertise through academically driven projects and independent research, with an emphasis on building robust systems that adhere to professional development practices and modern software engineering principles.
 
 For professional communication, he can be reached at: dalaklidesdemetres@gmail.com
-
-- Closes the unused **write end**.
-- Continuously reads all incoming messages from the pipe.
-- Stops when all children close their write ends and `read()` returns `0`.
-- Waits for all children using `wait()` to prevent zombie processes.
 
