@@ -48,7 +48,7 @@ Each child:
 - Continuously reads all incoming messages from the pipe.
 - Stops when all children close their write ends and `read()` returns `0`.
 - Waits for all children using `wait()` to prevent zombie processes.
-- 
+  
 
 Author
 
