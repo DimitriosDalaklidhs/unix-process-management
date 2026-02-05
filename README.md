@@ -50,7 +50,7 @@ Each child:
 - Waits for all children using `wait()` to prevent zombie processes.
   
 
-Author
+## Author
 
 Dimitrios Dalaklidis is an aspiring backend developer with a strong academic foundation in Informatics and hands-on experience in systems programming, data structures, and software architecture. His work reflects a methodical approach to problem solving, supported by practical exposure to multi-language development environments and structured programming disciplines. He has completed a range of projects involving low-level system operations in C, object-oriented application design in Java, browser-based scripting, and networked communication models.
 
