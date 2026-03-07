@@ -1,8 +1,8 @@
 # Multi-Process Pipe Communication in C
 
-This project demonstrates **inter-process communication (IPC)** using a single Unix **pipe** shared among multiple child processes. Each child sends a series of formatted messages to the parent process, which reads and prints them to standard output.
+This project demonstrates **interprocess communication (IPC)** using a single Unix **pipe** shared among multiple child processes. Each child sends a series of formatted messages to the parent process, which reads and prints them to standard output.
 
-Packaged with a **multi-stage Docker build**, the project requires no local C toolchain — just Docker.
+Packaged with a **multi-stage Docker build**, the project requires no local C toolchain, just Docker.
 
 ---
 
