@@ -95,9 +95,10 @@ The `--rm` flag automatically removes the container after it exits, keeping your
 ## Repository Structure
 
 ```
-.
 ├── ask4.c          # Main C source code for process management
-├── .gitignore      # Excludes compiled binaries (ask4) and logs
+├── k4.c            # Supporting C source file
+├── Dockerfile      # Multi-stage build instructions
+├── output.txt      # Sample program output
 └── README.md       # Project documentation (this file)
 ```
 
