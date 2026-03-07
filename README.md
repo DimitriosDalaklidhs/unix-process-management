@@ -95,11 +95,11 @@ The `--rm` flag automatically removes the container after it exits, keeping your
 ## Repository Structure
 
 ```
+├── Dockerfile      # Multi-stage build instructions
+├── README.md       # Project documentation 
 ├── ask4.c          # Main C source code for process management
 ├── k4.c            # Supporting C source file
-├── Dockerfile      # Multi-stage build instructions
-├── output.txt      # Sample program output
-└── README.md       # Project documentation (this file)
+└── output.txt      # Sample program output
 ```
 
 ---
