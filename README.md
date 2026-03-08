@@ -17,7 +17,7 @@ Packaged with a **multi-stage Docker build**, the project requires no local C to
   - Reads all incoming messages from the pipe
   - Prints them in the order they arrive (interleaved due to concurrency)
   - Waits for all children to finish, avoiding zombie processes
-- **Dockerized** with a multi-stage build — no `gcc` required on the host machine
+- **Dockerized** with a multi-stage build, no `gcc` required on the host machine
 
 ---
 
