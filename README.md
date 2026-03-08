@@ -125,7 +125,7 @@ If you encounter SSH issues when pushing to GitHub:
 
 ## Author
 
-**Dimitrios Dalaklidis** is an aspiring backend developer with a strong academic foundation in Informatics and hands-on experience in systems programming, data structures, and software architecture. His work reflects a methodical approach to problem solving, with practical exposure to multi-language development environments and structured programming disciplines.
+**Dimitrios Dalaklidis** is an aspiring backend developer with a strong academic foundation in Informatics and hands on experience in systems programming, data structures, and software architecture. His work reflects a methodical approach to problem solving, with practical exposure to diverse language development environments and structured programming disciplines.
 
 His technical interests centre on backend system design, algorithmic efficiency, and the construction of reliable, maintainable software.
 
