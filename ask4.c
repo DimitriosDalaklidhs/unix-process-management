@@ -4,13 +4,26 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+/*
+ * This program demonstrates inter-process communication using a pipe.
+ *
+ * - The parent process creates a pipe and forks NUM_CHILDREN children.
+ * - Each child writes MESSAGES_PER_CHILD messages into the pipe.
+ * - The parent reads from the pipe and prints all messages to stdout.
+ *
+ * Key concepts:
+ * - fork() creates child processes
+ * - pipe() provides unidirectional IPC
+ * - Proper closing of unused pipe ends is essential
+ */
+
 #define NUM_CHILDREN 5
 #define MESSAGES_PER_CHILD 5
 
 int main(void) {
     int pipe_fd[2];
 
-    // Create pipe
+    // Create pipe (pipe_fd[0] = read end, pipe_fd[1] = write end)
     if (pipe(pipe_fd) == -1) {
         perror("pipe");
         exit(EXIT_FAILURE);
@@ -29,27 +42,30 @@ int main(void) {
         }
 
         if (child_pid == 0) { // Child process
+
             // Close unused read end in child
+            // IMPORTANT: If not closed, the pipe may never signal EOF to the parent
             if (close(pipe_fd[0]) == -1) {
                 perror("close read end in child");
                 _exit(EXIT_FAILURE);
             }
 
             for (int j = 0; j < MESSAGES_PER_CHILD; j++) {
-                sleep(1); // Wait 1 second
+                sleep(1); // Delay to simulate work and stagger output
 
-                // Write message to pipe
+                // Multiple children write to the same pipe.
+                // Messages may interleave, but small writes (like this) are typically atomic.
                 if (dprintf(pipe_fd[1],
                             "pid: %d message: pid: %d email: cs04507@uowm.gr\n",
                             getppid(), getpid()) < 0) {
                     perror("dprintf");
-                    // Even on error, try to close and exit
                     close(pipe_fd[1]);
                     _exit(EXIT_FAILURE);
                 }
             }
 
             // Close write end in child when done
+            // This helps signal EOF to the parent when all children finish
             if (close(pipe_fd[1]) == -1) {
                 perror("close write end in child");
                 _exit(EXIT_FAILURE);
@@ -57,18 +73,23 @@ int main(void) {
 
             _exit(EXIT_SUCCESS);
         }
-        // Parent continues the loop and forks the next child
+
+        // Only the parent reaches here and continues creating more children.
+        // Each child exits inside the if (child_pid == 0) block.
     }
 
     // Parent process:
+
     // Close unused write end
+    // This allows the parent to detect EOF when all children finish writing
     if (close(pipe_fd[1]) == -1) {
         perror("close write end in parent");
         close(pipe_fd[0]);
         exit(EXIT_FAILURE);
     }
 
-    // Read from pipe and print
+    // Read from pipe and print to stdout
+    // Read from pipe until EOF (all write ends are closed)
     char buffer[256];
     ssize_t bytes_read;
 
@@ -92,11 +113,12 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    // Wait for all children to avoid zombies
+    // Wait for all children to terminate to prevent zombie processes
+    // (children that have exited but still occupy a process table entry)
     for (int i = 0; i < NUM_CHILDREN; i++) {
         if (wait(NULL) == -1) {
             perror("wait");
-            // Still continue trying to wait for others
+            // Continue attempting to wait for remaining children
         }
     }
 
