@@ -70,7 +70,7 @@ This project uses a **multi-stage Dockerfile** to bridge the gap between develop
 | **Build** | `debian:stable-slim` + `build-essential` | Compiles the C source into a binary |
 | **Runtime** | `debian:stable-slim` | Runs only the final binary |
 
-Stripping the compiler and headers from the final image reduces its size from **~300 MB** down to **~80 MB**, and significantly reduces the attack surface.
+Stripping the compiler and headers from the final image reduces its size from **~300 MB** down to **~80 MB**, so by more than 70 percent and significantly reduces the attack surface.
 
 ### How to Run (The DevOps Way)
 
