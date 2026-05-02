@@ -74,7 +74,7 @@ Stripping the compiler and headers from the final image reduces its size from **
 
 ### How to Run (The DevOps Way)
 
-You don't need `gcc` installed on your machine. Just use Docker:
+You don't need `gcc` installed on your machine for this one. Just use Docker:
 
 **1. Build the image:**
 
@@ -104,17 +104,7 @@ The `--rm` flag automatically removes the container after it exits, keeping your
 
 ---
 
-## Troubleshooting
 
-### SSH & Git Authentication
-
-If you encounter SSH issues when pushing to GitHub:
-
-| Issue | Fix |
-|---|---|
-| Permission denied | Set key permissions: `chmod 600 ~/.ssh/id_rsa` |
-| Agent not running | Start it: `eval "$(ssh-agent -s)"` then `ssh-add ~/.ssh/id_rsa` |
-| Wrong remote URL | Switch to SSH: `git remote set-url origin git@github.com:<user>/<repo>.git` |
 
 ### Docker
 
