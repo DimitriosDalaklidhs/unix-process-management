@@ -55,7 +55,7 @@ The parent:
 - Stops when all children have closed their write ends and `read()` returns `0`
 - Calls `wait()` for all children to prevent zombie processes
 
-> **Note on atomicity:** Each message is written in a single `write()` call sized well under `PIPE_BUF` (4096 bytes on Linux). POSIX guarantees these writes are atomic, so messages from concurrent children will not be interleaved or garbled — they arrive as complete units.
+> **Note on atomicity:** Each message is written in a single `write()` call sized well under `PIPE_BUF` (4096 bytes on Linux). POSIX guarantees these writes are atomic, so messages from concurrent children will not be interleaved or garbled as they arrive as complete units.
 
 ---
 
