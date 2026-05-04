@@ -1,4 +1,4 @@
-# Multi-Process Pipe Communication in C
+# Multi - Process Pipe Communication in C
 
 This project demonstrates **interprocess communication (IPC)** using a single Unix **pipe** shared among multiple child processes. Each child sends a series of formatted messages to the parent process, which reads and prints them to standard output.
 
