@@ -23,6 +23,36 @@ Packaged with a **multi-stage Docker build**, the project requires no local C to
 
 ## How It Works
 
+### Architecture
+
+```mermaid
+flowchart LR
+    subgraph Children
+        C1[Child 1]
+        C2[Child 2]
+        C3[Child 3]
+        C4[Child 4]
+        C5[Child 5]
+    end
+
+    C1 -->|write end| P((Pipe))
+    C2 -->|write end| P
+    C3 -->|write end| P
+    C4 -->|write end| P
+    C5 -->|write end| P
+
+    P -->|read end| Parent[Parent process]
+    Parent -->|stdout| Out[Terminal]
+
+    Parent -.fork x5.-> C1
+    Parent -.fork.-> C2
+    Parent -.fork.-> C3
+    Parent -.fork.-> C4
+    Parent -.fork.-> C5
+```
+
+The parent forks five children that share a single pipe. All children write into the write end, the parent drains the read end until every write end is closed and `read()` returns 0 (EOF), then reaps the children with `wait()`.
+
 ### 1. Pipe Creation
 
 The parent creates a Unix pipe using `pipe()`:
