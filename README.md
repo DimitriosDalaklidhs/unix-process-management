@@ -1,29 +1,10 @@
-# Multi - Process Pipe Communication in C
+# Multi-Process Pipe IPC in C
 
-This project demonstrates **interprocess communication (IPC)** using a single Unix **pipe** shared among multiple child processes. Each child sends a series of formatted messages to the parent process, which reads and prints them to standard output.
+Five child processes, one Unix pipe, one parent draining the read end. A small program written for a systems programming course at the University of Western Macedonia, kept around as a reference for how to fan messages from many writers into one reader without losing or interleaving them.
 
-Packaged with a **multi-stage Docker build**, the project requires no local C toolchain, just Docker.
+Ships with a multi-stage Dockerfile, so you don't need a C toolchain on the host.
 
----
-
-## Features
-
-- Creates a pipe for **unidirectional communication**
-- Spawns multiple child processes using `fork()`
-- **Each child process:**
-  - Sends several formatted messages through the pipe
-  - Includes its PID, message index, and a static email identifier
-- **The parent process:**
-  - Reads all incoming messages from the pipe
-  - Prints them in the order they arrive (interleaved due to concurrency)
-  - Waits for all children to finish, avoiding zombie processes
-- **Dockerized** with a multi-stage build, no `gcc` required on the host machine
-
----
-
-## How It Works
-
-### Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -51,102 +32,50 @@ flowchart LR
     Parent -.fork.-> C5
 ```
 
-The parent forks five children that share a single pipe. All children write into the write end, the parent drains the read end until every write end is closed and `read()` returns 0 (EOF), then reaps the children with `wait()`.
+The parent forks five children that share a single pipe. Each child writes 5 messages, one per second. The parent reads until every write end is closed and `read()` returns 0 (EOF), then `wait()`s for each child.
 
-### 1. Pipe Creation
+## What it does
 
-The parent creates a Unix pipe using `pipe()`:
+- The parent calls `pipe()` to get a `(read_fd, write_fd)` pair, then forks 5 children.
+- Each child closes its inherited read end, writes 5 formatted messages into the write end with `dprintf`, closes the write end, and `_exit()`s.
+- The parent closes its own write end (this is the part most people get wrong — without it, `read()` blocks forever waiting on an open writer that doesn't exist), then loops on `read()` until EOF.
+- After draining the pipe, the parent `wait()`s for each child to avoid zombies.
 
-- `pipe_fd[0]` → **read end**
-- `pipe_fd[1]` → **write end**
+Each message contains the parent PID, the child PID, and a static identifier string. They land on stdout in arrival order, which means children that get scheduled earlier appear first, but messages from a single child stay in the order that child wrote them.
 
-### 2. Process Creation
+### Why the messages don't get garbled
 
-The parent forks **5 child processes**. Each child inherits the pipe file descriptors.
+Each message is one `write()` call, well under `PIPE_BUF` (4096 bytes on Linux). POSIX guarantees writes of `PIPE_BUF` bytes or fewer are atomic, so two children writing simultaneously can't interleave bytes mid-message — you'll get whole messages in some order, never half of one stitched into half of another. This is the only reason a single shared pipe is safe here without locks.
 
-### 3. Child Behavior
+## Running it
 
-Each child:
-
-- Closes the unused **read end** of the pipe
-- Sends **5 messages**, one per second, each containing:
-  - Parent PID
-  - Message number
-  - Child PID
-  - A static email string
-- Closes the **write end** and exits
-
-### 4. Parent Behavior
-
-The parent:
-
-- Closes the unused **write end** of the pipe
-- Continuously reads all incoming messages from the pipe
-- Stops when all children have closed their write ends and `read()` returns `0`
-- Calls `wait()` for all children to prevent zombie processes
-
-> **Note on atomicity:** Each message is written in a single `write()` call sized well under `PIPE_BUF` (4096 bytes on Linux). POSIX guarantees these writes are atomic, so messages from concurrent children will not be interleaved or garbled as they arrive as complete units.
-
----
-
-## Dockerization
-
-This project uses a **multi-stage Dockerfile** to bridge the gap between development and production.
-
-### Why Multi-Stage?
-
-| Stage | Base Image | Purpose |
-|---|---|---|
-| **Build** | `debian:stable-slim` + `build-essential` | Compiles the C source into a binary |
-| **Runtime** | `debian:stable-slim` | Runs only the final binary |
-
-Stripping the compiler and headers from the final image reduces its size from **~300 MB** down to **~80 MB**, so by more than 70 percent and significantly reduces the attack surface.
-
-### How to Run (The DevOps Way)
-
-You don't need `gcc` installed on your machine for this one. Just use Docker:
-
-**1. Build the image:**
+With Docker:
 
 ```bash
-docker build -t unix-process-app .
+docker build -t pipe-ipc .
+docker run --rm pipe-ipc
 ```
 
-**2. Run the container:**
+Without Docker:
 
 ```bash
-docker run --rm unix-process-app
+gcc -Wall -o ask4 ask4.c
+./ask4
 ```
 
-The `--rm` flag automatically removes the container after it exits, keeping your environment clean.
+The Docker setup uses a multi-stage build: `debian:stable-slim` with `build-essential` for compilation, then just `debian:stable-slim` for the runtime image. The final image is around 80 MB instead of ~300 MB because the compiler and headers don't ship to runtime.
 
----
-
-## Repository Structure
+## Files
 
 ```
-├── Dockerfile      # Multi-stage build instructions
-├── README.md       # Project documentation 
-├── ask4.c          # Main C source code for process management
-├── k4.c            # Supporting C source file
-└── output.txt      # Sample program output
+Dockerfile      multi-stage build
+ask4.c          the actual program
+k4.c            companion exercise from the same coursework
+output.txt      sample run
 ```
-
----
-
-
-
-### Docker
-
-- If the container exits immediately with no output, confirm `ask4.c` compiled cleanly by checking `docker build` logs for warnings.
-- On Linux, you may need to prefix Docker commands with `sudo` unless your user is in the `docker` group.
-
----
 
 ## Author
 
-**Dimitrios Dalaklidis** is an aspiring backend developer with a strong academic foundation in Informatics and hands on experience in systems programming, data structures, and software architecture. His work reflects a methodical approach to problem solving, with practical exposure to diverse language development environments and structured programming disciplines.
+Dimitrios Dalaklidis, final year CS student at the University of Western Macedonia, based in Thessaloniki. Backend and systems work, including 3 merged PRs to Amazon Ion's `fusion-java` runtime, Spring Boot APIs, and FastAPI services with Redis on AWS.
 
-His technical interests centre on backend system design, algorithmic efficiency, and the construction of reliable, maintainable software.
-
-📧 [dalaklidesdemetres@gmail.com](mailto:dalaklidesdemetres@gmail.com)
+📧 [dalaklidesdemetres@gmail.com](mailto:dalaklidesdemetres@gmail.com) · [GitHub](https://github.com/DimitriosDalaklidhs) · [LinkedIn](https://www.linkedin.com/in/dimitris-dalaklidis-a72838397/)
