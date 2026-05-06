@@ -1,6 +1,7 @@
 # Multi-Process Pipe IPC in C
+This repository was heavily inspired by the brilliant book of Andrew S. Tanenbaum and Herbert Bos, "Modern Operating Systems".
 
-Five child processes, one Unix pipe, one parent draining the read end. A small program written for a systems programming course at the University of Western Macedonia, kept around as a reference for how to fan messages from many writers into one reader without losing or interleaving them.
+Five child processes, one Unix pipe, one parent draining the read end. A small program written for a distributed systems course at the University of Western Macedonia, kept around as a reference for how to fan messages from many writers into one reader without losing or interleaving them. Later enhanced with containerization.
 
 Ships with a multi-stage Dockerfile, so you don't need a C toolchain on the host.
 
